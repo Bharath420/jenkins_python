@@ -1,0 +1,42 @@
+---
+driver:
+  name: vcloud
+  driver_config:
+    vCloud_url: 'https://dev.us.compute.mastercard.int'
+    vdc_name: devcloud
+    template_catalog: 'Templates'
+    iso_catalog: Community
+
+provisioner:
+  deprecations_as_errors: true
+  name: chef_solo
+  log_level: info
+  attributes:
+    mc_hosting:
+      environment: devcloud
+      network: devcloud
+    mc_filesystem:
+      makelinks: true
+      volgroup: 
+        name:  'local1vg'
+
+platforms:
+  - name: docker-oracle-6.9
+    driver:
+      name: docker
+    driver_config:
+      image: containers.dev.mastercard.int/oracle:6.9_chef13_latest
+      platform: rhel
+
+  - name: vcloud-oracle-6.8
+    driver_config:
+      template: Oracle Linux 6.8 Cloud-Init - Compliant - Extra Large
+      platform: oracle
+
+suites:
+  - name: default
+    includes: docker-oracle-6.9
+    attributes:
+    run_list:
+      - recipe[mc_python]
+      - recipe[mc_python_test]
